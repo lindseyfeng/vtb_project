@@ -16,7 +16,7 @@ df = pd.read_csv('test_set.csv')
 prompts = df['Content'].tolist()[:5]
 
 # Function to generate a response with a length of 100 tokens
-def generate_response(prompt, max_tokens=100):
+def generate_response(prompt, max_tokens=3-):
     inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
     inputs = {key: value.to(device) for key, value in inputs.items()}  # Move tensors to the appropriate device
     generation_config = {
@@ -24,7 +24,7 @@ def generate_response(prompt, max_tokens=100):
         'do_sample': False,
         # Uncomment and adjust these parameters as needed:
         'top_k': 50,
-        'top_p': 0.95,
+        'top_p': 0.8,
         'temperature': 0.7,
     }
     outputs = model.generate(**inputs, **generation_config)
