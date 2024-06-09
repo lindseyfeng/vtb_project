@@ -26,7 +26,7 @@ def generate_response(prompt, max_tokens=100):
         'top_k': 50,
         'top_p': 0.95,
         'temperature': 0.7,
-    # }
+    }
     outputs = model.generate(**inputs, **generation_config)
     generated_tokens = outputs[:, inputs['input_ids'].shape[1]:]
     response = tokenizer.decode(generated_tokens[0], skip_special_tokens=True)
