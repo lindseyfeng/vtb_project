@@ -16,11 +16,11 @@ df = pd.read_csv('test_set.csv')
 prompts = df['Content'].tolist()[:5]
 
 # Function to generate a response with a length of 100 tokens
-def generate_response(prompt, max_tokens=30):
+def generate_response(prompt, max_new_tokens=30):
     inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
     inputs = {key: value.to(device) for key, value in inputs.items()}  # Move tensors to the appropriate device
     generation_config = {
-        'max_length': max_tokens,  # Adjust for input length + inputs['input_ids'].shape[1]
+        'max_length': max_new_tokens,  # Adjust for input length + inputs['input_ids'].shape[1]
         'do_sample': True,
         # Uncomment and adjust these parameters as needed:
         'top_k': 50,
@@ -36,8 +36,6 @@ def generate_response(prompt, max_tokens=30):
 # Generate responses for all prompts in the CSV
 responses = [generate_response(prompt) for prompt in prompts]
 
-# Add the responses back to the dataframe
-df['response'] = responses[:5]  # Ensure alignment with the number of prompts processed
 
 # # Save the dataframe with responses to a new CSV file
 # df.to_csv('output_with_responses.csv', index=False)
