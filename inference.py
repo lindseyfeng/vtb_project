@@ -21,7 +21,7 @@ def generate_response(prompt, max_tokens=30):
     inputs = {key: value.to(device) for key, value in inputs.items()}  # Move tensors to the appropriate device
     generation_config = {
         'max_length': max_tokens,  # Adjust for input length + inputs['input_ids'].shape[1]
-        'do_sample': False,
+        'do_sample': True,
         # Uncomment and adjust these parameters as needed:
         'top_k': 50,
         'top_p': 0.8,
