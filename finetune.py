@@ -12,9 +12,10 @@ df = pd.read_csv('train_set.csv')
 
 # Convert to Hugging Face Dataset
 dataset = Dataset.from_pandas(df)
+print(dataset)
 
 sft_config = SFTConfig(
-    dataset_text_field="text",
+    dataset_text_field="Content",
     max_seq_length=512,
     output_dir="/qwen2-vtb",
 )
