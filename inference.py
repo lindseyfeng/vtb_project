@@ -30,6 +30,7 @@ def generate_response(prompt, max_tokens=100):
     outputs = model.generate(**inputs, **generation_config)
     generated_tokens = outputs[:, inputs['input_ids'].shape[1]:]
     response = tokenizer.decode(generated_tokens[0], skip_special_tokens=True)
+    print(response)
     return response
 
 # Generate responses for all prompts in the CSV
@@ -38,7 +39,7 @@ responses = [generate_response(prompt) for prompt in prompts]
 # Add the responses back to the dataframe
 df['response'] = responses[:5]  # Ensure alignment with the number of prompts processed
 
-# Save the dataframe with responses to a new CSV file
-df.to_csv('output_with_responses.csv', index=False)
+# # Save the dataframe with responses to a new CSV file
+# df.to_csv('output_with_responses.csv', index=False)
 
-print("Responses generated and saved to 'output_with_responses.csv'")
+# print("Responses generated and saved to 'output_with_responses.csv'")
