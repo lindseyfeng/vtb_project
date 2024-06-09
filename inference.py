@@ -20,13 +20,13 @@ def generate_response(prompt, max_tokens=100):
     inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
     inputs = {key: value.to(device) for key, value in inputs.items()}  # Move tensors to the appropriate device
     generation_config = {
-        'max_length': max_tokens + inputs['input_ids'].shape[1],  # Adjust for input length
+        'max_length': max_tokens,  # Adjust for input length + inputs['input_ids'].shape[1]
         'do_sample': False,
         # Uncomment and adjust these parameters as needed:
-        # 'top_k': 50,
-        # 'top_p': 0.95,
-        # 'temperature': 0.7,
-    }
+        'top_k': 50,
+        'top_p': 0.95,
+        'temperature': 0.7,
+    # }
     outputs = model.generate(**inputs, **generation_config)
     generated_tokens = outputs[:, inputs['input_ids'].shape[1]:]
     response = tokenizer.decode(generated_tokens[0], skip_special_tokens=True)
