@@ -17,7 +17,7 @@ print(dataset)
 sft_config = SFTConfig(
     dataset_text_field="Content",
     max_seq_length=512,
-    output_dir="/qwen2-vtb",
+    output_dir="./qwen2-vtb",
 )
 trainer = SFTTrainer(
     model = model,
