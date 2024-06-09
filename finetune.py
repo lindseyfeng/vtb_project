@@ -17,6 +17,8 @@ print(dataset)
 sft_config = SFTConfig(
     dataset_text_field="Content",
     max_seq_length=512,
+    per_device_train_batch_size = 1,
+    gradient_accumulation_steps = 8, 
     output_dir="./qwen2-vtb",
 )
 trainer = SFTTrainer(
