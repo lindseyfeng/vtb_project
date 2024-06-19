@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
 
     # 5. initialize the DPO trainer
-    dpo_trainer = ECEDP0Trainer(
+    dpo_trainer = DPOTrainer(
         model,
         model_ref,
         args=training_args,
