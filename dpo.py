@@ -255,7 +255,7 @@ if __name__ == "__main__":
         warmup_steps=script_args.warmup_steps,
         optim=script_args.optimizer_type,
         remove_unused_columns=False,
-        run_name="dpo_qwen2,
+        run_name="dpo_qwen2",
         num_train_epochs=script_args.num_train_epochs,
         save_total_limit=4,
         bf16=True,
