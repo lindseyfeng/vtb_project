@@ -17,7 +17,7 @@ prompts = df['Prompt'].tolist()[:10]
 model.generation_config.pad_token_id = tokenizer.pad_token_id
 # Function to generate a response with a length of 100 tokens
 def generate_response(prompt, max_new_tokens=100):
-    print("prompt", prompt)
+    print("prompt:", prompt)
     inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
     inputs = {key: value.to(device) for key, value in inputs.items()}  # Move tensors to the appropriate device
     generation_config = {
@@ -33,7 +33,7 @@ def generate_response(prompt, max_new_tokens=100):
     outputs = model.generate(**inputs, **generation_config)
     generated_tokens = outputs[:, inputs['input_ids'].shape[1]:]
     response = tokenizer.decode(generated_tokens[0], skip_special_tokens=True)
-    print(response)
+    print("response", response)
     return response
 
 # Generate responses for all prompts in the CSV
