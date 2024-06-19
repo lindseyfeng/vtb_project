@@ -7,12 +7,10 @@ import torch.nn as nn
 import torch
 from datasets import Dataset, load_dataset
 from torch.utils.data import DataLoader
-from peft import LoraConfig
 from transformers import AutoModelForCausalLM, AutoTokenizer, HfArgumentParser, TrainingArguments
 from peft import PeftModel
 import json
 from trl import DPOTrainer, DPOConfig
-from dpo_temperature_scaling import _ECELoss, temperature_scale, set_temperature
 import wandb
 import torch.nn.functional as F
 from trl import create_reference_model
