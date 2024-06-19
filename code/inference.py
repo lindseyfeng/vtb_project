@@ -13,8 +13,8 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 df = pd.read_csv('../test_set.csv')
 
 # Assuming the CSV has a column named 'Content'
-prompts = df['Prompt'].tolist()[:5]
-tokenizer.pad_token_id = tokenizer.eos_token_id
+prompts = df['Prompt'].tolist()[:10]
+model.generation_config.pad_token_id = tokenizer.pad_token_id
 # Function to generate a response with a length of 100 tokens
 def generate_response(prompt, max_new_tokens=30):
     print("prompt", prompt)
