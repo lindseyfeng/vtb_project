@@ -18,7 +18,7 @@ prompts = df['Prompt'].tolist()
 sampled_prompts = random.sample(prompts, 10)
 model.generation_config.pad_token_id = tokenizer.pad_token_id
 # Function to generate a response with a length of 100 tokens
-def generate_response(prompt, max_new_tokens=150):
+def generate_response(prompt, max_new_tokens=50):
     print("prompt:", prompt)
     inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
     inputs = {key: value.to(device) for key, value in inputs.items()}  # Move tensors to the appropriate device
@@ -28,9 +28,9 @@ def generate_response(prompt, max_new_tokens=150):
         # Uncomment and adjust these parameters as needed:
         'top_k': 50,
         'top_p': 0.8,
-        'temperature': 0.8,
+        'temperature': 0.9,
         'no_repeat_ngram_size': 2,  # No repetition of 2-grams
-        'repetition_penalty':1, 
+        'repetition_penalty':0.5, 
     }
     outputs = model.generate(**inputs, **generation_config)
     generated_tokens = outputs[:, inputs['input_ids'].shape[1]:]
