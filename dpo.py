@@ -42,9 +42,17 @@ class DPODataCollatorWithPadding:
         self.label_pad_token_id = label_pad_token_id
         self.is_encoder_decoder = is_encoder_decoder
 
-    def __call__(self, features: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def __call__(self, f: List[Dict[str, Any]]) -> Dict[str, Any]:
         # Filter out any features that have None values
-        features = [f for f in features if all(value is not None for value in f.values())]
+        features = []
+        for feature in f:
+            if all(
+                isinstance(value, list) and all(item is not None for item in value)
+                for key, value in feature.items() if key.endswith("_input_ids") or key.endswith("_attention_mask") or key.endswith("_labels")
+            ):
+                features.append(feature)
+            else:
+                print(f"Invalid feature detected and ignored: {feature}")
 
         if not features:
             raise ValueError("No valid features provided after filtering out None values.")
