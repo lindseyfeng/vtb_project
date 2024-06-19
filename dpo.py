@@ -164,7 +164,7 @@ if __name__ == "__main__":
 
     # 2. Load the Stack-exchange paired dataset
     train_dataset = get_train_data()
-    train_dataset = train_dataset.filter(lambda x: x['chosen'] is not None)
+    train_dataset = train_dataset.filter(lambda x: x['chosen'] is not None and x['rejected'] is not None)
     print(train_dataset)
     first_entry = train_dataset[0]
     print("Prompt:", first_entry['prompt'])
@@ -173,7 +173,7 @@ if __name__ == "__main__":
 
     # 3. Load evaluation dataset
     eval_dataset = get_test_data()
-    eval_dataset = eval_dataset.filter(lambda x: x['chosen'] is not None)
+    eval_dataset = eval_dataset.filter(lambda x: x['chosen'] is not None and x['rejected'] is not None)
     print(eval_dataset)
 
     # train_dataset = load_json(script_args.train_path)
