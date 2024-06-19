@@ -76,6 +76,8 @@ class DPODataCollatorWithPadding:
                     if "prompt" in k:
                         to_pad = [torch.LongTensor(ex[k][::-1]) for ex in features]
                     else:
+                        for i in features:
+                            print(i)
                         to_pad = [torch.LongTensor(ex[k]) for ex in features]
                     if k.endswith("_input_ids"):
                         if self.pad_token_id is None:
