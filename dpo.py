@@ -39,7 +39,7 @@ class ScriptArguments:
 
     # training parameters
     model_name_or_path: Optional[str] = field(
-        default="Qwen/Qwen2-0.5B", #"./qwen2-vtb/checkpoint-500"
+        default="./qwen2-vtb/checkpoint-500"
         metadata={"help": "the location of the SFT model name or path"},
     )
     learning_rate: Optional[float] = field(default=5e-5, metadata={"help": "optimizer learning rate"})
@@ -63,9 +63,9 @@ class ScriptArguments:
     max_prompt_length: Optional[int] = field(default=512, metadata={"help": "the maximum prompt length"})
     max_length: Optional[int] = field(default=1024, metadata={"help": "the maximum sequence length"})
     max_steps: Optional[int] = field(default=-1, metadata={"help": "max number of training steps"})
-    logging_steps: Optional[int] = field(default=10, metadata={"help": "the logging frequency"})
+    logging_steps: Optional[int] = field(default=5, metadata={"help": "the logging frequency"})
     save_steps: Optional[int] = field(default=100, metadata={"help": "the saving frequency"})
-    eval_steps: Optional[int] = field(default=100, metadata={"help": "the evaluation frequency"})
+    eval_steps: Optional[int] = field(default=20, metadata={"help": "the evaluation frequency"})
 
     output_dir: Optional[str] = field(default="./dpo_qwen2-0.5b", metadata={"help": "the output directory"})
     log_freq: Optional[int] = field(default=1, metadata={"help": "the logging frequency"})
