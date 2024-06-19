@@ -34,6 +34,7 @@ def generate_response(prompt, max_new_tokens=100):
     generated_tokens = outputs[:, inputs['input_ids'].shape[1]:]
     response = tokenizer.decode(generated_tokens[0], skip_special_tokens=True)
     print("response", response)
+    print()
     return response
 
 # Generate responses for all prompts in the CSV
