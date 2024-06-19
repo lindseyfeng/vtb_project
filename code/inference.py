@@ -3,14 +3,14 @@ import pandas as pd
 import torch
 
 # Load the model and tokenizer
-model_name = "qwen2-vtb/checkpoint-500"
+model_name = "../dpo_qwen2-0.5b/final_checkpoint"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  
 
 model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 # Load the CSV file
-df = pd.read_csv('test_set.csv')
+df = pd.read_csv('../test_set.csv')
 
 # Assuming the CSV has a column named 'Content'
 prompts = df['Content'].tolist()[:5]
