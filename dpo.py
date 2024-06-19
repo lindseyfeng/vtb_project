@@ -129,7 +129,7 @@ class ScriptArguments:
 
     # training parameters
     model_name_or_path: Optional[str] = field(
-        default="./qwen2-vtb/checkpoint-500",
+        default="Qwen/Qwen2-0.5B", #"./qwen2-vtb/checkpoint-500"
         metadata={"help": "the location of the SFT model name or path"},
     )
     learning_rate: Optional[float] = field(default=5e-5, metadata={"help": "optimizer learning rate"})
