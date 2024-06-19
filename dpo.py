@@ -246,6 +246,7 @@ if __name__ == "__main__":
     parser = HfArgumentParser(ScriptArguments)
     script_args = parser.parse_args_into_dataclasses()[0]
     tokenizer = AutoTokenizer.from_pretrained(script_args.model_name_or_path)
+    print(tokenizer.bos_token_id)
     model = AutoModelForCausalLM.from_pretrained(script_args.model_name_or_path)
     model_ref = create_reference_model(model)
 
