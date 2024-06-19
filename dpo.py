@@ -305,7 +305,7 @@ if __name__ == "__main__":
         max_length=script_args.max_length,
         max_target_length=script_args.max_target_length,
         force_use_ref_model = True,
-        data_collator = DPODataCollatorWithPadding(tokenizer.pad_token_id, -100, model.config.is_encoder_decod)
+        data_collator = DPODataCollatorWithPadding(tokenizer.pad_token_id, -100, model.config.is_encoder_decoder)
     )
 
     # 6. train
