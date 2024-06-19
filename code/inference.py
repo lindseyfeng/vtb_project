@@ -30,7 +30,7 @@ def generate_response(prompt, max_new_tokens=150):
         'top_p': 0.8,
         'temperature': 0.8,
         'no_repeat_ngram_size': 2,  # No repetition of 2-grams
-        'repetition_penalty':2.0, 
+        'repetition_penalty':1, 
     }
     outputs = model.generate(**inputs, **generation_config)
     generated_tokens = outputs[:, inputs['input_ids'].shape[1]:]
