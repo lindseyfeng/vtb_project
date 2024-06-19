@@ -89,64 +89,6 @@ class ScriptArguments:
         default="val_data.json",
     )
 
-def load_json(path):
-    with open(path, "r") as f:
-        data = json.load(f)
-    return Dataset.from_dict(data)
-
-def extract_anthropic_prompt(prompt_and_response):
-    """Extract the anthropic prompt from a prompt and response pair."""
-    search_term = "\n\nAssistant:"
-    search_term_idx = prompt_and_response.rfind(search_term)
-    assert search_term_idx != -1, f"Prompt and response does not contain '{search_term}'"
-    return prompt_and_response[: search_term_idx + len(search_term)]
-
-
-
-##dahoas
-# def get_hh(split: str, sanity_check: bool = False, silent: bool = False, cache_dir: str = None) -> Dataset:
-#     """Load the Anthropic Helpful-Harmless dataset from Hugging Face and convert it to the necessary format.
-
-#     The dataset is converted to a dictionary with the following structure:
-#     {
-#         'prompt': List[str],
-#         'chosen': List[str],
-#         'rejected': List[str],
-#     }
-
-#     Prompts should be structured as follows:
-#       \n\nHuman: <prompt>\n\nAssistant:
-#     Multiple turns are allowed, but the prompt should always start with \n\nHuman: and end with \n\nAssistant:.
-#     """
-#     # dataset = load_dataset("Anthropic/hh-rlhf", split=split, cache_dir=cache_dir)
-#     # if sanity_check:
-#     #     dataset = dataset.select(range(min(len(dataset), 100)))
-
-#     # def split_prompt_and_responses(sample) -> Dict[str, str]:
-
-#     #     return {
-#     #         "prompt": sample["prompt"],
-#     #         "chosen": sample["chosen"],
-#     #         "rejected": sample["rejected"],
-#     #     }
-
-#     # return dataset.map(split_prompt_and_responses)
-#     dataset = load_dataset("Anthropic/hh-rlhf", split=split, cache_dir=cache_dir)
-#     if sanity_check:
-#         dataset = dataset.select(range(min(len(dataset), 1000)))
-
-#     def split_prompt_and_responses(sample) -> Dict[str, str]:
-#         prompt = extract_anthropic_prompt(sample["chosen"])
-#         return {
-#             "prompt": prompt,
-#             "chosen": sample["chosen"][len(prompt) :],
-#             "rejected": sample["rejected"][len(prompt) :],
-#         }
-
-#     return dataset.map(split_prompt_and_responses)
-
-
-
 def get_train_data() -> Dataset:
     """Load the Anthropic Helpful-Harmless dataset from Hugging Face and convert it to the necessary format.
 
@@ -169,9 +111,9 @@ def get_train_data() -> Dataset:
 
     def split_prompt_and_responses(sample) -> Dict[str, str]:
         return {
-            "prompt": sample["prompt"],
-            "chosen": sample["chosen"],
-            "rejected": sample["reject"],
+            "prompt": sample["Prompt"],
+            "chosen": sample["Chosen"],
+            "rejected": sample["Reject"],
         }
     return dataset.map(split_prompt_and_responses)
 
@@ -198,9 +140,9 @@ def get_test_data() -> Dataset:
 
     def split_prompt_and_responses(sample) -> Dict[str, str]:
         return {
-            "prompt": sample["prompt"],
-            "chosen": sample["chosen"],
-            "rejected": sample["reject"],
+            "prompt": sample["Prompt"],
+            "chosen": sample["Chosen"],
+            "rejected": sample["Reject"],
         }
     return dataset.map(split_prompt_and_responses)
 
