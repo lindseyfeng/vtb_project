@@ -1,6 +1,7 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import pandas as pd
 import torch
+import random
 
 # Load the model and tokenizer
 model_name = "../dpo_qwen2-0.5b/final_checkpoint"
@@ -11,12 +12,13 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 # Load the CSV file
 df = pd.read_csv('../test_set.csv')
-
+random.seed(42)
 # Assuming the CSV has a column named 'Content'
-prompts = df['Prompt'].tolist()[:10]
+prompts = df['Prompt'].tolist()
+sampled_prompts = random.sample(prompts, 10)
 model.generation_config.pad_token_id = tokenizer.pad_token_id
 # Function to generate a response with a length of 100 tokens
-def generate_response(prompt, max_new_tokens=100):
+def generate_response(prompt, max_new_tokens=150):
     print("prompt:", prompt)
     inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
     inputs = {key: value.to(device) for key, value in inputs.items()}  # Move tensors to the appropriate device
@@ -26,9 +28,9 @@ def generate_response(prompt, max_new_tokens=100):
         # Uncomment and adjust these parameters as needed:
         'top_k': 50,
         'top_p': 0.8,
-        'temperature': 0.7,
+        'temperature': 0.8,
         'no_repeat_ngram_size': 2,  # No repetition of 2-grams
-    'repetition_penalty':2.0, 
+        'repetition_penalty':2.0, 
     }
     outputs = model.generate(**inputs, **generation_config)
     generated_tokens = outputs[:, inputs['input_ids'].shape[1]:]
@@ -38,7 +40,7 @@ def generate_response(prompt, max_new_tokens=100):
     return response
 
 # Generate responses for all prompts in the CSV
-responses = [generate_response(prompt) for prompt in prompts]
+responses = [generate_response(prompt) for prompt in sampled_prompts]
 
 
 # # Save the dataframe with responses to a new CSV file
