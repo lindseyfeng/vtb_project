@@ -26,13 +26,10 @@ df = pd.read_csv('../train_set.csv')
 dataset = Dataset.from_pandas(df)
 print(dataset)
 
-sft_config = SFTConfig(
-    output_dir="./qwen2-vtb-dpo-sft",
-)
 trainer = SFTTrainer(
     model,
     train_dataset=dataset,
-    args=SFTConfig(output_dir="/tmp"),
+    args=SFTConfig(output_dir="./qwen2-vtb-dpo-sft"),
     formatting_func=formatting_prompts_func,
     data_collator=collator,
 )
