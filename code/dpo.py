@@ -7,20 +7,25 @@ import torch.nn as nn
 import torch
 from datasets import Dataset, load_dataset
 from torch.utils.data import DataLoader
-from peft import LoraConfig
 from transformers import AutoModelForCausalLM, AutoTokenizer, HfArgumentParser, TrainingArguments
 from peft import PeftModel
 import json
 from trl import DPOTrainer, DPOConfig
-from dpo_temperature_scaling import _ECELoss, temperature_scale, set_temperature
 import wandb
 import torch.nn.functional as F
 from trl import create_reference_model
 from contextlib import contextmanager, nullcontext
 import warnings
+import pandas as pd
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 wandb.login(key="11308deb4bc611b19b149922fcd5c1406b496347")
+
+from typing import List, Dict, Any, Optional
+import torch
+from torch.nn.utils.rnn import pad_sequence
+
+
     
 # Define and parse arguments.
 @dataclass
@@ -34,16 +39,16 @@ class ScriptArguments:
 
     # training parameters
     model_name_or_path: Optional[str] = field(
-        default="./qwen2-vtb/checkpoint-500",
+        default="./qwen2-vtb-dpo-sft/checkpoint-500",
         metadata={"help": "the location of the SFT model name or path"},
     )
     learning_rate: Optional[float] = field(default=5e-5, metadata={"help": "optimizer learning rate"})
     warmup_steps: Optional[int] = field(default=100, metadata={"help": "the number of warmup steps"})
     weight_decay: Optional[float] = field(default=0.05, metadata={"help": "the weight decay"})
     optimizer_type: Optional[str] = field(default="rmsprop", metadata={"help": "the optimizer type"})
-    num_train_epochs: Optional[int] = field(default=1, metadata={"help": "num epoch"})
-    per_device_train_batch_size: Optional[int] = field(default=32, metadata={"help": "train batch size per device"})
-    per_device_eval_batch_size: Optional[int] = field(default=32, metadata={"help": "eval batch size per device"})
+    num_train_epochs: Optional[int] = field(default=2, metadata={"help": "num epoch"})
+    per_device_train_batch_size: Optional[int] = field(default=8, metadata={"help": "train batch size per device"})
+    per_device_eval_batch_size: Optional[int] = field(default=8, metadata={"help": "eval batch size per device"})
     gradient_accumulation_steps: Optional[int] = field(
         default=4, metadata={"help": "the number of gradient accumulation steps"}
     )
@@ -58,9 +63,9 @@ class ScriptArguments:
     max_prompt_length: Optional[int] = field(default=512, metadata={"help": "the maximum prompt length"})
     max_length: Optional[int] = field(default=1024, metadata={"help": "the maximum sequence length"})
     max_steps: Optional[int] = field(default=-1, metadata={"help": "max number of training steps"})
-    logging_steps: Optional[int] = field(default=10, metadata={"help": "the logging frequency"})
+    logging_steps: Optional[int] = field(default=5, metadata={"help": "the logging frequency"})
     save_steps: Optional[int] = field(default=100, metadata={"help": "the saving frequency"})
-    eval_steps: Optional[int] = field(default=100, metadata={"help": "the evaluation frequency"})
+    eval_steps: Optional[int] = field(default=20, metadata={"help": "the evaluation frequency"})
 
     output_dir: Optional[str] = field(default="./dpo_qwen2-0.5b", metadata={"help": "the output directory"})
     log_freq: Optional[int] = field(default=1, metadata={"help": "the logging frequency"})
@@ -90,64 +95,6 @@ class ScriptArguments:
         default="val_data.json",
     )
 
-def load_json(path):
-    with open(path, "r") as f:
-        data = json.load(f)
-    return Dataset.from_dict(data)
-
-def extract_anthropic_prompt(prompt_and_response):
-    """Extract the anthropic prompt from a prompt and response pair."""
-    search_term = "\n\nAssistant:"
-    search_term_idx = prompt_and_response.rfind(search_term)
-    assert search_term_idx != -1, f"Prompt and response does not contain '{search_term}'"
-    return prompt_and_response[: search_term_idx + len(search_term)]
-
-
-
-##dahoas
-# def get_hh(split: str, sanity_check: bool = False, silent: bool = False, cache_dir: str = None) -> Dataset:
-#     """Load the Anthropic Helpful-Harmless dataset from Hugging Face and convert it to the necessary format.
-
-#     The dataset is converted to a dictionary with the following structure:
-#     {
-#         'prompt': List[str],
-#         'chosen': List[str],
-#         'rejected': List[str],
-#     }
-
-#     Prompts should be structured as follows:
-#       \n\nHuman: <prompt>\n\nAssistant:
-#     Multiple turns are allowed, but the prompt should always start with \n\nHuman: and end with \n\nAssistant:.
-#     """
-#     # dataset = load_dataset("Anthropic/hh-rlhf", split=split, cache_dir=cache_dir)
-#     # if sanity_check:
-#     #     dataset = dataset.select(range(min(len(dataset), 100)))
-
-#     # def split_prompt_and_responses(sample) -> Dict[str, str]:
-
-#     #     return {
-#     #         "prompt": sample["prompt"],
-#     #         "chosen": sample["chosen"],
-#     #         "rejected": sample["rejected"],
-#     #     }
-
-#     # return dataset.map(split_prompt_and_responses)
-#     dataset = load_dataset("Anthropic/hh-rlhf", split=split, cache_dir=cache_dir)
-#     if sanity_check:
-#         dataset = dataset.select(range(min(len(dataset), 1000)))
-
-#     def split_prompt_and_responses(sample) -> Dict[str, str]:
-#         prompt = extract_anthropic_prompt(sample["chosen"])
-#         return {
-#             "prompt": prompt,
-#             "chosen": sample["chosen"][len(prompt) :],
-#             "rejected": sample["rejected"][len(prompt) :],
-#         }
-
-#     return dataset.map(split_prompt_and_responses)
-
-
-
 def get_train_data() -> Dataset:
     """Load the Anthropic Helpful-Harmless dataset from Hugging Face and convert it to the necessary format.
 
@@ -170,9 +117,9 @@ def get_train_data() -> Dataset:
 
     def split_prompt_and_responses(sample) -> Dict[str, str]:
         return {
-            "prompt": sample["prompt"],
-            "chosen": sample["chosen"],
-            "rejected": sample["reject"],
+            "prompt": sample["Prompt"],
+            "chosen": sample["Chosen"],
+            "rejected": sample["Reject"],
         }
     return dataset.map(split_prompt_and_responses)
 
@@ -199,9 +146,9 @@ def get_test_data() -> Dataset:
 
     def split_prompt_and_responses(sample) -> Dict[str, str]:
         return {
-            "prompt": sample["prompt"],
-            "chosen": sample["chosen"],
-            "rejected": sample["reject"],
+            "prompt": sample["Prompt"],
+            "chosen": sample["Chosen"],
+            "rejected": sample["Reject"],
         }
     return dataset.map(split_prompt_and_responses)
 
@@ -209,6 +156,12 @@ if __name__ == "__main__":
     parser = HfArgumentParser(ScriptArguments)
     script_args = parser.parse_args_into_dataclasses()[0]
     tokenizer = AutoTokenizer.from_pretrained(script_args.model_name_or_path)
+    special_tokens_dict = {'bos_token': '<bos>'}
+    num_added_toks = tokenizer.add_special_tokens(special_tokens_dict)
+
+    # Set the bos_token_id to the newly added <bos> token
+    tokenizer.bos_token_id = tokenizer.convert_tokens_to_ids('<bos>')
+    print("bos", tokenizer.bos_token_id)
     model = AutoModelForCausalLM.from_pretrained(script_args.model_name_or_path)
     model_ref = create_reference_model(model)
 
@@ -223,6 +176,7 @@ if __name__ == "__main__":
 
     # 2. Load the Stack-exchange paired dataset
     train_dataset = get_train_data()
+    train_dataset = train_dataset.filter(lambda x: x['chosen'] is not None and x['rejected'] is not None)
     print(train_dataset)
     first_entry = train_dataset[0]
     print("Prompt:", first_entry['prompt'])
@@ -231,6 +185,7 @@ if __name__ == "__main__":
 
     # 3. Load evaluation dataset
     eval_dataset = get_test_data()
+    eval_dataset = eval_dataset.filter(lambda x: x['chosen'] is not None and x['rejected'] is not None)
     print(eval_dataset)
 
     # train_dataset = load_json(script_args.train_path)
@@ -247,7 +202,7 @@ if __name__ == "__main__":
         gradient_checkpointing=script_args.gradient_checkpointing,
         learning_rate=script_args.learning_rate,
         evaluation_strategy="steps",
-        save_strategy="step",
+        save_strategy="steps",
         max_steps=script_args.max_steps,
         eval_steps=script_args.eval_steps,
         output_dir=script_args.output_dir,
@@ -264,7 +219,7 @@ if __name__ == "__main__":
 
 
     # 5. initialize the DPO trainer
-    dpo_trainer = ECEDP0Trainer(
+    dpo_trainer = DPOTrainer(
         model,
         model_ref,
         args=training_args,
@@ -275,7 +230,7 @@ if __name__ == "__main__":
         max_prompt_length=script_args.max_prompt_length,
         max_length=script_args.max_length,
         max_target_length=script_args.max_target_length,
-        force_use_ref_model = True
+        force_use_ref_model = True,
     )
 
     # 6. train
@@ -285,3 +240,4 @@ if __name__ == "__main__":
     # 7. save
     output_dir = os.path.join(script_args.output_dir, "final_checkpoint")
     dpo_trainer.model.save_pretrained(output_dir)
+    tokenizer.save_pretrained(output_dir)
