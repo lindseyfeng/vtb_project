@@ -4,7 +4,7 @@ import torch
 import random
 
 # Load the model and tokenizer
-model_name = "./qwen2-vtb-dpo-sft/checkpoint-500"
+model_name = "./dpo_qwen2-0.5b/final_checkpoint"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  
 
 model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
