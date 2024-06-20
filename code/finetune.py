@@ -9,9 +9,8 @@ def formatting_prompts_func(example):
     print("len", len(example['Prompt']))
     output_texts = []
     for i in range(len(example['Prompt'])):
-        text = f"### Question: {example['Prompt'][i]}\n ### Answer: {example['Chosen']}"
+        text = f"### Question: {example['Prompt'][i]}\n ### Answer: {example['Chosen'][i]}"
         output_texts.append(text)
-    print(output_texts)
     return output_texts
 
 
