@@ -110,7 +110,7 @@ def get_train_data() -> Dataset:
     Multiple turns are allowed, but the prompt should always start with \n\nHuman: and end with \n\nAssistant:.
     """
     # return dataset.map(split_prompt_and_responses)
-    df = pd.read_csv('train_set.csv')
+    df = pd.read_csv('../train_set.csv')
     # Convert to Hugging Face Dataset
     dataset = Dataset.from_pandas(df)
     
@@ -139,7 +139,7 @@ def get_test_data() -> Dataset:
     Multiple turns are allowed, but the prompt should always start with \n\nHuman: and end with \n\nAssistant:.
     """
     # return dataset.map(split_prompt_and_responses)
-    df = pd.read_csv('test_set.csv')
+    df = pd.read_csv('../test_set.csv')
     # Convert to Hugging Face Dataset
     dataset = Dataset.from_pandas(df)
     
