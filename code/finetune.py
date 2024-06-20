@@ -7,7 +7,7 @@ from trl import SFTConfig, SFTTrainer, DataCollatorForCompletionOnlyLM
 
 def formatting_prompts_func(example):
     output_texts = []
-    for i in range(len(example['instruction'])):
+    for i in range(len(example['Prompt'])):
         text = f"### Question: {example['Prompt'][i]}\n ### Answer: {example['Chosen']}"
         output_texts.append(text)
     return output_texts
