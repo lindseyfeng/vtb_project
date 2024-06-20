@@ -6,12 +6,13 @@ from trl import SFTConfig, SFTTrainer, DataCollatorForCompletionOnlyLM
 
 
 def formatting_prompts_func(example):
-    print(example)
+    print("len", len(example['Prompt']))
     output_texts = []
     for i in range(len(example['Prompt'])):
         text = f"### Question: {example['Prompt'][i]}\n ### Answer: {example['Chosen']}"
         output_texts.append(text)
-    return text
+    print(output_texts)
+    return output_texts
 
 
 tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-0.5B")
