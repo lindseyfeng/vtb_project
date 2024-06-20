@@ -2,7 +2,7 @@ import pandas as pd
 from datasets import Dataset
 # Load model directly
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from trl import SFTConfig, SFTTrainer
+from trl import SFTConfig, SFTTrainer, DataCollatorForCompletionOnlyLM
 
 
 def formatting_prompts_func(example):
