@@ -6,17 +6,15 @@ from trl import SFTConfig, SFTTrainer, DataCollatorForCompletionOnlyLM
 
 
 def formatting_prompts_func(example):
-    output_texts = []
+    print(example)
     for i in range(len(example['Prompt'])):
         text = f"### Question: {example['Prompt'][i]}\n ### Answer: {example['Chosen']}"
-        output_texts.append(text)
+
     return output_texts
 
 
 tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-0.5B")
 model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2-0.5B")
-response_template = " ### Answer:"
-collator = DataCollatorForCompletionOnlyLM(response_template, tokenizer=tokenizer)
 
 # Load your dataset
 df = pd.read_csv('../train_set.csv')
