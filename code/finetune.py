@@ -26,9 +26,6 @@ dataset = Dataset.from_pandas(df)
 print(dataset)
 
 sft_config = SFTConfig(
-    max_seq_length=512,
-    per_device_train_batch_size = 1,
-    gradient_accumulation_steps = 4, 
     output_dir="./qwen2-vtb-dpo-sft",
 )
 trainer = SFTTrainer(
