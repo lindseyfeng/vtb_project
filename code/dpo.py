@@ -39,14 +39,14 @@ class ScriptArguments:
 
     # training parameters
     model_name_or_path: Optional[str] = field(
-        default="./qwen2-vtb-dpo-sft/checkpoint-500",
+        default="./qwen2-vtb-dpo-sft-1.5b/checkpoint-500",
         metadata={"help": "the location of the SFT model name or path"},
     )
     learning_rate: Optional[float] = field(default=5e-5, metadata={"help": "optimizer learning rate"})
     warmup_steps: Optional[int] = field(default=100, metadata={"help": "the number of warmup steps"})
     weight_decay: Optional[float] = field(default=0.05, metadata={"help": "the weight decay"})
     optimizer_type: Optional[str] = field(default="rmsprop", metadata={"help": "the optimizer type"})
-    num_train_epochs: Optional[int] = field(default=1, metadata={"help": "num epoch"})
+    num_train_epochs: Optional[int] = field(default=2, metadata={"help": "num epoch"})
     per_device_train_batch_size: Optional[int] = field(default=8, metadata={"help": "train batch size per device"})
     per_device_eval_batch_size: Optional[int] = field(default=8, metadata={"help": "eval batch size per device"})
     gradient_accumulation_steps: Optional[int] = field(
