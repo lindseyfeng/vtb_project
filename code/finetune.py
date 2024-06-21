@@ -14,8 +14,8 @@ def formatting_prompts_func(example):
     return output_texts
 
 
-tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-0.5B")
-model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2-0.5B")
+tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-1.5B")
+model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2-1.5B")
 response_template = " ### Answer:"
 collator = DataCollatorForCompletionOnlyLM(response_template, tokenizer=tokenizer)
 
@@ -29,7 +29,7 @@ print(dataset)
 trainer = SFTTrainer(
     model,
     train_dataset=dataset,
-    args=SFTConfig(output_dir="./qwen2-vtb-dpo-sft"),
+    args=SFTConfig(output_dir="./qwen2-vtb-dpo-sft-1.5b"),
     formatting_func=formatting_prompts_func,
     data_collator=collator,
 )
